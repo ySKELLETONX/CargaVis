@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Produtos — CargaVis{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-box-seam me-2 text-success"></i>Produtos</h4>
+      <p class="text-muted mb-0">Cadastro de produtos e suas dimensões</p>
+    </div>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openNew()">
+      <i class="bi bi-plus-circle me-1"></i>Novo Produto
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Nome / SKU</th>
+              <th>C × L × A (m)</th>
+              <th>Volume (m³)</th>
+              <th>Peso (kg)</th>
+              <th>Empilhável</th>
+              <th>Frágil</th>
+              <th class="pe-4 text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody">
+            <tr id="loading-row">
+              <td colspan="7" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm me-2"></div>Carregando...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modal-title">Novo Produto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="product-form">
+          <input type="hidden" id="p-id" />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Nome *</label>
+              <input class="form-control" id="p-name" placeholder="Ex: Caixa Produto A" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">SKU</label>
+              <input class="form-control" id="p-sku" placeholder="Opcional" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Orientação</label>
+              <select class="form-select" id="p-orientation">
+                <option value="any">Qualquer</option>
+                <option value="fixed">Fixa</option>
+                <option value="upright">Vertical</option>
+              </select>
+            </div>
+
+            <div class="col-12"><hr class="my-1" /><p class="text-muted small mb-0">Dimensões da embalagem</p></div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Comprimento (m) *</label>
+              <input type="number" class="form-control" id="p-length" step="0.001" min="0.001" placeholder="0.600" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Largura (m) *</label>
+              <input type="number" class="form-control" id="p-width" step="0.001" min="0.001" placeholder="0.400" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Altura (m) *</label>
+              <input type="number" class="form-control" id="p-height" step="0.001" min="0.001" placeholder="0.300" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Peso (kg) *</label>
+              <input type="number" class="form-control" id="p-weight" step="0.01" min="0.01" placeholder="5.00" required />
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="alert alert-info py-2 px-3 mb-0 w-100" id="p-vol-preview" style="font-size:.85rem">
+                Volume: — m³
+              </div>
+            </div>
+
+            <div class="col-12"><hr class="my-1" /></div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Empilhável</label>
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" id="p-stackable" checked />
+                <label class="form-check-label" for="p-stackable">Sim</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Máx. pilhas</label>
+              <input type="number" class="form-control" id="p-maxstack" min="1" value="3" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Frágil</label>
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" id="p-fragile" />
+                <label class="form-check-label" for="p-fragile">Sim</label>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="alert alert-danger mt-3 d-none" id="p-error"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="saveProduct()">
+          <i class="bi bi-check-circle me-1"></i>Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold text-danger">Confirmar exclusão</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">Deseja excluir o produto <strong id="del-name"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/products.js"></script>
+{% endblock %}

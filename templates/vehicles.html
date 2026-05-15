@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Veículos — CargaVis{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-truck me-2 text-primary"></i>Veículos</h4>
+      <p class="text-muted mb-0">Cadastro de frotas e compartimentos de carga</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vehicleModal" onclick="openNew()">
+      <i class="bi bi-plus-circle me-1"></i>Novo Veículo
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="vehicles-table">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Nome</th>
+              <th>Tipo</th>
+              <th>C × L × A (m)</th>
+              <th>Volume (m³)</th>
+              <th>Peso máx. (kg)</th>
+              <th>Porta</th>
+              <th class="pe-4 text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="vehicles-tbody">
+            <tr id="loading-row">
+              <td colspan="7" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm me-2"></div>Carregando...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal fade" id="vehicleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modal-title">Novo Veículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="vehicle-form">
+          <input type="hidden" id="v-id" />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Nome *</label>
+              <input class="form-control" id="v-name" placeholder="Ex: Truck Bitrem 1" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Tipo</label>
+              <select class="form-select" id="v-type">
+                <option value="truck">Caminhão</option>
+                <option value="van">Van</option>
+                <option value="trailer">Trailer</option>
+                <option value="pickup">Pickup</option>
+                <option value="other">Outro</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-medium">Tipo de porta</label>
+              <select class="form-select" id="v-door">
+                <option value="rear">Traseira</option>
+                <option value="side">Lateral</option>
+                <option value="both">Ambas</option>
+              </select>
+            </div>
+
+            <div class="col-12"><hr class="my-1" /><p class="text-muted small mb-0">Dimensões internas do compartimento de carga</p></div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Comprimento (m) *</label>
+              <input type="number" class="form-control" id="v-length" step="0.01" min="0.1" placeholder="13.60" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Largura (m) *</label>
+              <input type="number" class="form-control" id="v-width" step="0.01" min="0.1" placeholder="2.40" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Altura (m) *</label>
+              <input type="number" class="form-control" id="v-height" step="0.01" min="0.1" placeholder="2.80" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Peso máximo (kg)</label>
+              <input type="number" class="form-control" id="v-maxweight" step="1" min="0" placeholder="Opcional" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="alert alert-info py-2 px-3 mb-0 w-100" id="volume-preview" style="font-size:.85rem">
+                Volume: — m³
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="alert alert-danger mt-3 d-none" id="v-error"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveVehicle()">
+          <i class="bi bi-check-circle me-1"></i>Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold text-danger">Confirmar exclusão</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">Deseja excluir o veículo <strong id="del-name"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/vehicles.js"></script>
+{% endblock %}

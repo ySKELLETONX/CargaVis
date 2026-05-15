@@ -1,0 +1,95 @@
+/* CargaVis — custom styles */
+
+:root {
+  --sidebar-width: 320px;
+}
+
+/* ── Navbar active link ─────────────────────────────────────────────────────── */
+.navbar .nav-link.active {
+  color: #fff !important;
+  font-weight: 600;
+  border-bottom: 2px solid #0d6efd;
+}
+
+/* ── Card hover (dashboard) ─────────────────────────────────────────────────── */
+.card-hover {
+  transition: box-shadow 0.15s, transform 0.15s;
+  cursor: pointer;
+}
+.card-hover:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Sidebar (viewer) ───────────────────────────────────────────────────────── */
+.sidebar {
+  border-right: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+
+/* ── Product rows in viewer ─────────────────────────────────────────────────── */
+.product-row {
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+.product-row:hover {
+  background: #f8f9fa;
+}
+
+.qty-input {
+  text-align: center;
+  font-weight: 600;
+}
+.qty-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────────── */
+.table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: #6c757d;
+  border-bottom: none;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Step numbers (dashboard) ───────────────────────────────────────────────── */
+.step-num {
+  font-size: 0.875rem;
+}
+
+/* ── Three.js canvas ────────────────────────────────────────────────────────── */
+#three-container canvas {
+  display: block;
+  outline: none;
+}
+
+/* ── Scrollbar styling ──────────────────────────────────────────────────────── */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 3px;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────────── */
+.badge {
+  font-weight: 500;
+}
+
+/* ── Responsive tweaks ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 260px !important;
+  }
+}

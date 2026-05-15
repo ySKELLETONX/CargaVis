@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Visualizador 3D — CargaVis{% endblock %}
+
+{% block head_extra %}
+<style>
+  body { overflow: hidden; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex" style="height: calc(100vh - 56px);">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar bg-white border-end d-flex flex-column" style="width:320px; overflow-y:auto;">
+
+    <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+      <h6 class="fw-bold mb-0"><i class="bi bi-badge-3d me-2 text-primary"></i>Configurar Carga</h6>
+      <div class="d-flex gap-1">
+        <button class="btn btn-outline-secondary btn-sm" id="btn-sessions"
+                title="Projetos salvos" data-bs-toggle="modal" data-bs-target="#sessionsModal">
+          <i class="bi bi-folder2-open"></i>
+        </button>
+        <button class="btn btn-outline-success btn-sm" id="btn-save"
+                title="Salvar projeto atual" disabled
+                data-bs-toggle="modal" data-bs-target="#saveModal">
+          <i class="bi bi-floppy"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Vehicle selector -->
+    <div class="p-3 border-bottom">
+      <label class="form-label fw-medium small text-uppercase text-muted">Veículo</label>
+      <select class="form-select form-select-sm" id="vehicle-select">
+        <option value="">Selecione um veículo...</option>
+      </select>
+      <div class="mt-2 d-none" id="vehicle-info">
+        <small class="text-muted" id="vehicle-dims"></small>
+      </div>
+    </div>
+
+    <!-- Product list -->
+    <div class="p-3 border-bottom flex-grow-1">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label class="form-label fw-medium small text-uppercase text-muted mb-0">Produtos &amp; Qtd.</label>
+        <button class="btn btn-link btn-sm p-0 text-muted" onclick="resetQuantities()" title="Zerar quantidades">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+      </div>
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="search" id="product-search" class="form-control border-start-0 ps-0"
+               placeholder="Buscar por nome ou SKU..." autocomplete="off" />
+      </div>
+      <div id="product-list">
+        <p class="text-muted small">Nenhum produto cadastrado.</p>
+      </div>
+    </div>
+
+    <!-- Pack mode selector -->
+    <div class="p-3 border-bottom">
+      <label class="form-label fw-medium small text-uppercase text-muted mb-2">Modo de Empacotamento</label>
+      <div class="d-flex flex-column gap-1">
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="pack-mode" id="mode-auto" value="auto" checked>
+          <label class="form-check-label small" for="mode-auto">
+            <span class="fw-medium">Automático</span>
+            <span class="d-block text-muted" style="font-size:.71rem">py3dbp (≤30 itens) ou EP 6 rotações</span>
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="pack-mode" id="mode-compact" value="compact">
+          <label class="form-check-label small" for="mode-compact">
+            <span class="fw-medium"><i class="bi bi-layers me-1 text-info"></i>Compacto</span>
+            <span class="d-block text-muted" style="font-size:.71rem">Empilha na entrada — sobra comprimento livre</span>
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="pack-mode" id="mode-spread" value="spread">
+          <label class="form-check-label small" for="mode-spread">
+            <span class="fw-medium"><i class="bi bi-grid-3x3 me-1 text-primary"></i>Distribuído</span>
+            <span class="d-block text-muted" style="font-size:.71rem">EP 6 rotações — preenche lacunas com gravidade</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Optimize button -->
+    <div class="p-3 border-bottom">
+      <button class="btn btn-primary w-100" id="btn-optimize">
+        <i class="bi bi-magic me-2"></i>Otimizar Carga
+      </button>
+    </div>
+
+    <!-- Stats panel -->
+    <div class="p-3 border-bottom d-none" id="stats-panel">
+      <label class="form-label fw-medium small text-uppercase text-muted">Resultado</label>
+      <div class="row g-2 text-center">
+        <div class="col-6">
+          <div class="bg-light rounded p-2">
+            <div class="fw-bold fs-5 text-primary" id="stat-utilization">—</div>
+            <div class="text-muted" style="font-size:.72rem">Ocupação</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="bg-light rounded p-2">
+            <div class="fw-bold fs-5 text-success" id="stat-weight">—</div>
+            <div class="text-muted" style="font-size:.72rem">Peso total</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="bg-light rounded p-2">
+            <div class="fw-bold fs-5" id="stat-packed">—</div>
+            <div class="text-muted" style="font-size:.72rem">Alocados</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="bg-light rounded p-2">
+            <div class="fw-bold fs-5 text-danger" id="stat-unpacked">—</div>
+            <div class="text-muted" style="font-size:.72rem">Não alocados</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2" id="engine-badge"></div>
+    </div>
+
+    <!-- Color legend -->
+    <div class="p-3 d-none" id="legend-panel">
+      <label class="form-label fw-medium small text-uppercase text-muted">Legenda</label>
+      <div id="color-legend"></div>
+    </div>
+
+    <!-- Controls help -->
+    <div class="p-3 mt-auto border-top">
+      <p class="text-muted mb-1" style="font-size:.72rem"><i class="bi bi-mouse me-1"></i><strong>Girar:</strong> Arrastar</p>
+      <p class="text-muted mb-1" style="font-size:.72rem"><i class="bi bi-zoom-in me-1"></i><strong>Zoom:</strong> Scroll</p>
+      <p class="text-muted mb-1" style="font-size:.72rem"><i class="bi bi-hand-index me-1"></i><strong>Mover câmera:</strong> Ctrl+Arrastar</p>
+      <p class="text-muted mb-0" style="font-size:.72rem"><i class="bi bi-cursor me-1"></i><strong>Selecionar:</strong> Clicar no item</p>
+    </div>
+  </aside>
+
+  <!-- ── 3D Canvas area ── -->
+  <main class="flex-grow-1 position-relative bg-dark">
+    <div id="three-container" style="width:100%;height:100%;"></div>
+
+    <!-- Selected item info overlay -->
+    <div class="position-absolute top-0 end-0 m-3 d-none" id="item-info" style="min-width:220px;">
+      <div class="card border-0 shadow">
+        <div class="card-header bg-warning text-dark py-2 d-flex align-items-center justify-content-between">
+          <span class="fw-bold small">Item selecionado</span>
+          <button class="btn btn-link btn-sm p-0 text-dark" onclick="deselectItem()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="card-body py-2 px-3">
+          <div class="fw-semibold" id="info-name"></div>
+          <div class="text-muted small mt-1">
+            <i class="bi bi-arrows-move me-1"></i><span id="info-pos"></span>
+          </div>
+          <div class="text-muted small">
+            <i class="bi bi-box me-1"></i><span id="info-dim"></span>
+          </div>
+          <div class="text-muted small">
+            <i class="bi bi-speedometer me-1"></i><span id="info-weight"></span>
+          </div>
+        </div>
+        <div class="card-footer py-1 px-3 bg-light">
+          <small class="text-muted">Arraste para reposicionar</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state overlay -->
+    <div class="position-absolute top-50 start-50 translate-middle text-center d-none" id="empty-state">
+      <i class="bi bi-badge-3d text-secondary" style="font-size:4rem;opacity:.3"></i>
+      <p class="text-secondary mt-2">Selecione um veículo e clique em<br><strong>Otimizar Carga</strong></p>
+    </div>
+
+    <!-- Transform mode buttons -->
+    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-none" id="transform-controls">
+      <div class="btn-group shadow">
+        <button class="btn btn-dark btn-sm active" id="btn-translate" onclick="setMode('translate')">
+          <i class="bi bi-arrows-move me-1"></i>Mover
+        </button>
+        <button class="btn btn-dark btn-sm" id="btn-rotate" onclick="setMode('rotate')">
+          <i class="bi bi-arrow-repeat me-1"></i>Girar
+        </button>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- ── Modal: Salvar sessão ─────────────────────────────────────────────────── -->
+<div class="modal fade" id="saveModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold"><i class="bi bi-floppy me-2 text-success"></i>Salvar Projeto</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label fw-medium small">Nome do projeto</label>
+        <input class="form-control" id="session-name-input"
+               placeholder="Ex: Carga Semana 01" maxlength="100" />
+        <div class="alert alert-danger mt-2 d-none small" id="save-error"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success btn-sm" id="btn-confirm-save">
+          <i class="bi bi-check-circle me-1"></i>Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Projetos salvos ──────────────────────────────────────────────── -->
+<div class="modal fade" id="sessionsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold"><i class="bi bi-folder2-open me-2 text-primary"></i>Projetos Salvos</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+
+        <!-- Toolbar -->
+        <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom bg-light">
+          <button class="btn btn-outline-primary btn-sm" id="btn-import-trigger">
+            <i class="bi bi-upload me-1"></i>Importar JSON
+          </button>
+          <input type="file" id="import-file-input" accept=".json" class="d-none" />
+          <span class="text-muted small ms-auto" id="sessions-count"></span>
+        </div>
+
+        <!-- Sessions list -->
+        <div id="sessions-list" class="p-3">
+          <div class="text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Carregando...
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/viewer.js"></script>
+{% endblock %}
