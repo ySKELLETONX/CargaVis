@@ -183,51 +183,8 @@ Algoritmo de colunas verticais com 6 rotações e preferência por orientações
 
 ---
 
-## Como contribuir
-
-Contribuições são bem-vindas! Veja como começar:
-
-1. Faça um **fork** do repositório
-2. Crie uma branch para sua feature: `git checkout -b feature/minha-feature`
-3. Commit suas mudanças: `git commit -m 'feat: descrição da feature'`
-4. Push para a branch: `git push origin feature/minha-feature`
-5. Abra um **Pull Request**
-
-### Ideias de contribuição
-
-- [ ] Testes automatizados (pytest)
-- [ ] Suporte a banco PostgreSQL (para deploy em nuvem)
-- [ ] API para importar produtos via CSV/Excel
-- [ ] Restrição de fragilidade (item frágil nunca vai embaixo)
-- [ ] Múltiplos veículos na mesma otimização
-- [ ] Exportar plano de carga como PDF
-- [ ] Modo escuro na interface
-- [ ] Internacionalização (EN/ES)
-- [ ] Docker / docker-compose para deploy fácil
-
----
-
-## Deploy gratuito
-
-O backend Flask não roda no GitHub Pages (apenas estático). Alternativas gratuitas recomendadas:
-
-| Serviço | Observação |
-|---|---|
-| **Render** | Conecta ao GitHub, detecta Flask automaticamente |
-| **Railway** | $5 crédito/mês gratuito, muito fácil |
-| **Fly.io** | Mais técnico, bom desempenho |
-| **PythonAnywhere** | Feito para Python |
-
----
-
 ## Licença
 
 MIT — use, modifique e distribua livremente. Veja [LICENSE](LICENSE).
 
 ---
-
-## Créditos
-
-- [py3dbp](https://github.com/enzoruiz/3dbinpacking) — algoritmo de bin packing exato para cargas pequenas
-- [Three.js](https://threejs.org/) — renderização 3D no browser
-- [Bootstrap 5](https://getbootstrap.com/) — interface responsiva
