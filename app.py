@@ -4,7 +4,7 @@ from optimizer import pack_products
 from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cargavis.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////data/cargavis.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)

@@ -8,6 +8,10 @@ primary_region = 'ams'
 
 [build]
 
+[mounts]
+  source = 'cargavis_data'
+  destination = '/data'
+
 [http_service]
   internal_port = 8080
   force_https = true
@@ -17,7 +21,6 @@ primary_region = 'ams'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '256mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256
