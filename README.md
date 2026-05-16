@@ -52,7 +52,7 @@ CargaVis resolve o problema de bin packing 3D para logística: dado um veículo 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/cargavis.git
+git clone https://github.com/ySKELLETONX/CargaVis.git
 cd cargavis
 
 # Crie e ative o ambiente virtual
@@ -76,7 +76,7 @@ python app.py
 
 Acesse `http://localhost:5000` no navegador.
 
-O banco `cargavis.db` é criado automaticamente na primeira execução.
+O banco é criado automaticamente em `/data/cargavis.db` na primeira execução. Certifique-se de que o diretório `/data` existe ou ajuste `SQLALCHEMY_DATABASE_URI` em `app.py` para um caminho local.
 
 ---
 
