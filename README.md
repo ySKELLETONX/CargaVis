@@ -13,6 +13,12 @@ CargaVis resolve o problema de bin packing 3D para logística: dado um veículo 
 
 ---
 
+## Screenshots
+
+![CargaVis](img/1.png)
+
+---
+
 ## Funcionalidades
 
 - **Visualizador 3D interativo** — Three.js com rotação, zoom, pan e seleção de itens por clique
