@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from models import db, Vehicle, Product, LoadSession, LoadItem
+from models import db, Vehicle, Product, LoadSession, LoadItem, SiteStats
 from optimizer import pack_products
 from sqlalchemy.exc import IntegrityError
 
@@ -28,6 +28,9 @@ with app.app_context():
             Product(name="Embalagem Frágil",sku="FRG",  length=0.50, width=0.40, height=0.35, weight=8.0,  stackable=False, max_stack=1, fragile=True),
         ])
 
+    if SiteStats.query.get(1) is None:
+        db.session.add(SiteStats(id=1, visits=0))
+
     db.session.commit()
 
 
@@ -35,6 +38,9 @@ with app.app_context():
 
 @app.route("/")
 def index():
+    stats = SiteStats.query.get(1)
+    stats.visits += 1
+    db.session.commit()
     return render_template("index.html")
 
 
@@ -51,6 +57,38 @@ def products_page():
 @app.route("/viewer")
 def viewer_page():
     return render_template("viewer.html")
+
+
+@app.route("/badge/visits")
+def visits_badge():
+    from flask import Response
+    stats = SiteStats.query.get(1)
+    count = stats.visits if stats else 0
+    label = "visitantes"
+    value = str(count)
+    lw = 90
+    vw = max(40, len(value) * 9 + 16)
+    tw = lw + vw
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{tw}" height="20">
+  <linearGradient id="s" x2="0" y2="100%">
+    <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <clipPath id="r"><rect width="{tw}" height="20" rx="3"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect width="{lw}" height="20" fill="#555"/>
+    <rect x="{lw}" width="{vw}" height="20" fill="#2196f3"/>
+    <rect width="{tw}" height="20" fill="url(#s)"/>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,sans-serif" font-size="11">
+    <text x="{lw//2}" y="15" fill="#010101" fill-opacity=".3">{label}</text>
+    <text x="{lw//2}" y="14">{label}</text>
+    <text x="{lw + vw//2}" y="15" fill="#010101" fill-opacity=".3">{value}</text>
+    <text x="{lw + vw//2}" y="14">{value}</text>
+  </g>
+</svg>"""
+    return Response(svg, mimetype="image/svg+xml",
+                    headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 # ── Vehicles API ───────────────────────────────────────────────────────────────

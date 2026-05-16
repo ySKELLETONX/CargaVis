@@ -102,6 +102,13 @@ class LoadSession(db.Model):
         }
 
 
+class SiteStats(db.Model):
+    __tablename__ = "site_stats"
+
+    id = db.Column(db.Integer, primary_key=True)
+    visits = db.Column(db.Integer, default=0, nullable=False)
+
+
 class LoadItem(db.Model):
     __tablename__ = "load_items"
 

@@ -8,6 +8,7 @@ CargaVis resolve o problema de bin packing 3D para logística: dado um veículo 
 ![Flask](https://img.shields.io/badge/Flask-3.0-lightgrey?logo=flask)
 ![Three.js](https://img.shields.io/badge/Three.js-r165-black?logo=threedotjs)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Visitors](https://cargavis.fly.dev/badge/visits)
 
 **Demo ao vivo:** [https://cargavis.fly.dev](https://cargavis.fly.dev)
 
