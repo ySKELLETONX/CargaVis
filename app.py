@@ -12,6 +12,24 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+    if Vehicle.query.count() == 0:
+        db.session.add_all([
+            Vehicle(name="Fiorino / Kombi",      type="van",   int_length=1.8,  int_width=1.2,  int_height=1.2,  max_weight=650,   door_type="rear"),
+            Vehicle(name="Caminhão 3/4",          type="truck", int_length=4.2,  int_width=2.2,  int_height=2.2,  max_weight=3500,  door_type="rear"),
+            Vehicle(name="Truck Baú (Toco)",      type="truck", int_length=7.5,  int_width=2.4,  int_height=2.5,  max_weight=8000,  door_type="rear"),
+        ])
+
+    if Product.query.count() == 0:
+        db.session.add_all([
+            Product(name="Caixa Pequena",   sku="CX-P", length=0.40, width=0.30, height=0.30, weight=5.0,  stackable=True,  max_stack=5, fragile=False),
+            Product(name="Caixa Média",     sku="CX-M", length=0.60, width=0.40, height=0.40, weight=12.0, stackable=True,  max_stack=3, fragile=False),
+            Product(name="Caixa Grande",    sku="CX-G", length=0.80, width=0.60, height=0.60, weight=25.0, stackable=True,  max_stack=2, fragile=False),
+            Product(name="Palete Padrão",   sku="PAL",  length=1.20, width=1.00, height=1.20, weight=80.0, stackable=False, max_stack=1, fragile=False),
+            Product(name="Embalagem Frágil",sku="FRG",  length=0.50, width=0.40, height=0.35, weight=8.0,  stackable=False, max_stack=1, fragile=True),
+        ])
+
+    db.session.commit()
+
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
 
